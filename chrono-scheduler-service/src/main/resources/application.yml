@@ -1,0 +1,34 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: chrono-scheduler-service
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: chrono-scheduler-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+app:
+  kafka:
+    topics:
+      job-created: chronoflow.job.created.v1
+      job-execute: chronoflow.job.execute.v1
+  scheduler:
+    poll-interval-ms: 1000

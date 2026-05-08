@@ -1,0 +1,41 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: chrono-api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: job-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/v1/tenants/**,/api/v1/jobs/**,/api/v1/health
+        - id: scheduler-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/v1/scheduler/**,/api/v1/scheduler-health
+        - id: executor-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/v1/executor/**,/api/v1/executor-health
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,gateway
+
+app:
+  security:
+    api-key-header: X-API-Key
+    valid-api-keys:
+      - local-dev-key-1
+      - local-dev-key-2
+  rate-limit:
+    max-requests: 120
+    window-seconds: 60

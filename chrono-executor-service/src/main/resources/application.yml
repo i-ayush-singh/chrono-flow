@@ -1,0 +1,34 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: chrono-executor-service
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: chrono-executor-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+app:
+  kafka:
+    topics:
+      job-execute: chronoflow.job.execute.v1
+      job-retry: chronoflow.job.retry.v1
+      job-dlq: chronoflow.job.dlq.v1
+  executor:
+    max-attempts: 5
+    retry-backoff-ms: 5000
+    connect-timeout-ms: 2000
+    read-timeout-ms: 4000

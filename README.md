@@ -1,37 +1,89 @@
 # ChronoFlow
 
-Distributed job scheduler as a service (Spring Boot, Kafka, Redis, PostgreSQL, Kubernetes).
+ChronoFlow is a distributed job scheduler platform (Cron-as-a-Service) designed with industry-ready architecture.
 
-## GitHub remote
+## Tech Stack
 
-This repository is configured to use GitHub as `origin`. Cursor uses your linked GitHub account for authentication when you push from the Source Control UI or terminal.
+- Spring Boot 3 + Java 21
+- PostgreSQL (source of truth)
+- Redis (locks, timer wheels, idempotency)
+- Kafka (execution/event backbone)
+- Docker Compose (local runtime)
+- Kubernetes (next phases)
 
-### One-time setup
+## Modules (Phase 1)
 
-1. On GitHub, create a **new empty repository** (no README, no .gitignore) named `chrono-flow` under the account you use with Cursor.
-2. If the repo URL is different from the default below, update the remote:
+- `chrono-bom`: centralized dependency versions
+- `chrono-common`: shared DTOs and base contracts
+- `chrono-job-service`: first Spring Boot service (health + base runtime)
+- `chrono-scheduler-service`: consumes job-created events, stores schedule index in Redis, publishes due execution events
+- `chrono-executor-service`: consumes execute events, performs webhook calls, pushes retry/DLQ events
+- `chrono-api-gateway`: central entrypoint with API key auth, Redis rate limiting, and service routing
 
-   ```bash
-   git remote set-url origin https://github.com/<YOUR_USER_OR_ORG>/chrono-flow.git
-   ```
-
-3. Push this branch:
-
-   ```bash
-   git push -u origin main
-   ```
-
-Default remote (matches local `git config user.name`):
-
-- `https://github.com/ayushsingh/chrono-flow.git`
-
-SSH alternative:
+## Run Local Infrastructure
 
 ```bash
-git remote set-url origin git@github.com:ayushsingh/chrono-flow.git
-git push -u origin main
+docker compose -f infra/docker/docker-compose.yml up -d
 ```
 
-## Status
+## Build
 
-Project scaffolding and services will land in follow-up commits.
+```bash
+mvn clean install
+```
+
+## Run Job Service
+
+```bash
+mvn -pl chrono-job-service spring-boot:run
+```
+
+Health check:
+
+```bash
+curl http://localhost:8081/api/v1/health
+```
+
+## Run Scheduler Service
+
+```bash
+mvn -pl chrono-scheduler-service spring-boot:run
+```
+
+Health check:
+
+```bash
+curl http://localhost:8082/api/v1/health
+```
+
+## Run Executor Service
+
+```bash
+mvn -pl chrono-executor-service spring-boot:run
+```
+
+Health check:
+
+```bash
+curl http://localhost:8083/api/v1/health
+```
+
+## Run API Gateway
+
+```bash
+mvn -pl chrono-api-gateway spring-boot:run
+```
+
+Health check:
+
+```bash
+curl http://localhost:8080/actuator/health
+```
+
+## Next Phases
+
+- Auth service (tenant/API key/JWT)
+- Scheduler service (Redis timer wheel + Kafka publish)
+- Executor service (Kafka consumer + webhook delivery + retry/DLQ)
+- API Gateway
+- Observability + Kubernetes deployment
