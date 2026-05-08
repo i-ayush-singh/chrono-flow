@@ -21,10 +21,14 @@ spec:
         {{- include "chronoflow.labels" $root | nindent 8 }}
         app.kubernetes.io/name: {{ $svc.name }}
     spec:
+      securityContext:
+        {{- toYaml $root.Values.global.podSecurityContext | nindent 8 }}
       containers:
         - name: {{ $svc.name }}
           image: {{ $svc.image }}
           imagePullPolicy: {{ $root.Values.global.imagePullPolicy }}
+          securityContext:
+            {{- toYaml $root.Values.global.containerSecurityContext | nindent 12 }}
           ports:
             - containerPort: {{ $svc.port }}
           readinessProbe:

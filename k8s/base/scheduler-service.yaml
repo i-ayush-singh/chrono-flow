@@ -13,9 +13,19 @@ spec:
       labels:
         app: chrono-scheduler-service
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
       containers:
         - name: chrono-scheduler-service
           image: i-ayush-singh/chrono-scheduler-service:latest
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
           ports:
             - containerPort: 8082
           readinessProbe:

@@ -3,6 +3,7 @@ kind: Kustomization
 namespace: chronoflow
 resources:
   - namespace.yaml
+  - networkpolicy.yaml
   - configmap.yaml
   - secret.yaml
   - job-service.yaml

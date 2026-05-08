@@ -130,6 +130,7 @@ Base manifests are available under `k8s/base` for:
 - job-service, auth-service, scheduler-service, executor-service, api-gateway
 - ingress for `chronoflow.local`
 - health probes, resource requests/limits, and HPAs
+- network policies + non-root/read-only security context hardening
 
 Apply with:
 
@@ -174,6 +175,14 @@ Install in namespace:
 ```bash
 helm upgrade --install chronoflow helm/chronoflow --namespace chronoflow --create-namespace
 ```
+
+Security defaults in Helm:
+
+- Pod/container runs as non-root (`runAsNonRoot`, explicit UID/GID)
+- `allowPrivilegeEscalation: false`
+- `readOnlyRootFilesystem: true`
+- dropped Linux capabilities (`ALL`)
+- namespace ingress hardening via NetworkPolicy templates
 
 ## CI/CD
 

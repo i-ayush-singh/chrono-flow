@@ -1,6 +1,17 @@
 global:
   imagePullPolicy: IfNotPresent
   tracingEndpoint: http://otel-collector:4318/v1/traces
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 10001
+    runAsGroup: 10001
+    fsGroup: 10001
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
 
 config:
   kafkaBootstrapServers: kafka:9092
@@ -17,6 +28,9 @@ gateway:
     enabled: true
     className: ""
     host: chronoflow.local
+
+networkPolicy:
+  enabled: true
 
 services:
   job:

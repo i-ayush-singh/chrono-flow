@@ -13,9 +13,19 @@ spec:
       labels:
         app: chrono-executor-service
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
       containers:
         - name: chrono-executor-service
           image: i-ayush-singh/chrono-executor-service:latest
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
           ports:
             - containerPort: 8083
           readinessProbe:
