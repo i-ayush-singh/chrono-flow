@@ -26,6 +26,11 @@ ChronoFlow is a distributed job scheduler platform (Cron-as-a-Service) designed 
 docker compose -f infra/docker/docker-compose.yml up -d
 ```
 
+Observability UIs:
+
+- Jaeger: `http://localhost:16686`
+- Grafana: `http://localhost:3000` (admin/admin)
+
 ## Build
 
 ```bash
