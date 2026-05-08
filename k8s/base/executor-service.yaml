@@ -49,6 +49,21 @@ spec:
                 configMapKeyRef:
                   name: chronoflow-config
                   key: SPRING_KAFKA_BOOTSTRAP_SERVERS
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: chronoflow-config
+                  key: SPRING_DATASOURCE_URL
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: chronoflow-config
+                  key: SPRING_DATASOURCE_USERNAME
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: chronoflow-secrets
+                  key: SPRING_DATASOURCE_PASSWORD
             - name: MANAGEMENT_OTLP_TRACING_ENDPOINT
               valueFrom:
                 configMapKeyRef:

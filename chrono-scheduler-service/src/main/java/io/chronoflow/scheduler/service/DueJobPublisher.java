@@ -6,6 +6,7 @@ import io.chronoflow.scheduler.config.KafkaTopicsProperties;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -39,6 +40,7 @@ public class DueJobPublisher {
                 String cronExpression = String.valueOf(metadata.get("cronExpression"));
                 String event = objectMapper.writeValueAsString(Map.of(
                         "eventType", "JOB_EXECUTE",
+                        "executionId", UUID.randomUUID().toString(),
                         "jobId", jobId,
                         "tenantId", String.valueOf(metadata.get("tenantId")),
                         "targetUrl", String.valueOf(metadata.get("targetUrl")),

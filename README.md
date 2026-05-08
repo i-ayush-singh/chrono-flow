@@ -150,6 +150,8 @@ mvn -pl chrono-job-service spring-boot:run
 
 Flyway runs automatically on startup and validates schema history.
 
+`chrono-executor-service` also uses Flyway and persists execution records for idempotency and scheduled retries with backoff.
+
 ## Helm Chart
 
 A Helm chart is available at `helm/chronoflow`.

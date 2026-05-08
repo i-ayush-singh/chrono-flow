@@ -21,11 +21,6 @@ public class JobExecuteConsumer {
         consume(payload);
     }
 
-    @KafkaListener(topics = "${app.kafka.topics.job-retry}", groupId = "${spring.kafka.consumer.group-id}")
-    public void onJobRetry(String payload) {
-        consume(payload);
-    }
-
     private void consume(String payload) {
         try {
             ExecuteEvent event = objectMapper.readValue(payload, ExecuteEvent.class);

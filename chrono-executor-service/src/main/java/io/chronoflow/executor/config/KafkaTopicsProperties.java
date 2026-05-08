@@ -3,5 +3,5 @@ package io.chronoflow.executor.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "app.kafka.topics")
-public record KafkaTopicsProperties(String jobExecute, String jobRetry, String jobDlq) {
+public record KafkaTopicsProperties(String jobExecute, String jobDlq) {
 }
