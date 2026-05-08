@@ -28,6 +28,8 @@ jobs:
         include:
           - module: chrono-job-service
             image: chrono-job-service
+          - module: chrono-auth-service
+            image: chrono-auth-service
           - module: chrono-scheduler-service
             image: chrono-scheduler-service
           - module: chrono-executor-service
@@ -102,6 +104,7 @@ jobs:
             --namespace "${{ inputs.namespace }}" \
             --create-namespace \
             --set services.job.image=ghcr.io/${{ github.repository_owner }}/chrono-job-service:${GITHUB_SHA} \
+            --set services.auth.image=ghcr.io/${{ github.repository_owner }}/chrono-auth-service:${GITHUB_SHA} \
             --set services.scheduler.image=ghcr.io/${{ github.repository_owner }}/chrono-scheduler-service:${GITHUB_SHA} \
             --set services.executor.image=ghcr.io/${{ github.repository_owner }}/chrono-executor-service:${GITHUB_SHA} \
             --set services.gateway.image=ghcr.io/${{ github.repository_owner }}/chrono-api-gateway:${GITHUB_SHA}

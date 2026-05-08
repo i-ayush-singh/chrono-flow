@@ -1,27 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: chrono-api-gateway
+  name: chrono-auth-service
   namespace: chronoflow
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: chrono-api-gateway
+      app: chrono-auth-service
   template:
     metadata:
       labels:
-        app: chrono-api-gateway
+        app: chrono-auth-service
     spec:
       containers:
-        - name: chrono-api-gateway
-          image: i-ayush-singh/chrono-api-gateway:latest
+        - name: chrono-auth-service
+          image: i-ayush-singh/chrono-auth-service:latest
           ports:
-            - containerPort: 8080
+            - containerPort: 8084
           readinessProbe:
             httpGet:
               path: /actuator/health
-              port: 8080
+              port: 8084
             initialDelaySeconds: 20
             periodSeconds: 10
             timeoutSeconds: 2
@@ -29,38 +29,36 @@ spec:
           livenessProbe:
             httpGet:
               path: /actuator/health
-              port: 8080
+              port: 8084
             initialDelaySeconds: 45
             periodSeconds: 20
             timeoutSeconds: 2
             failureThreshold: 3
           resources:
             requests:
-              cpu: "200m"
+              cpu: "150m"
               memory: "256Mi"
             limits:
-              cpu: "1000m"
+              cpu: "600m"
               memory: "768Mi"
           env:
             - name: SERVER_PORT
-              value: "8080"
-            - name: APP_SECURITY_AUTH_SERVICE_BASE_URL
-              value: "http://chrono-auth-service:8084"
-            - name: SPRING_DATA_REDIS_HOST
+              value: "8084"
+            - name: SPRING_DATASOURCE_URL
               valueFrom:
                 configMapKeyRef:
                   name: chronoflow-config
-                  key: SPRING_DATA_REDIS_HOST
-            - name: SPRING_DATA_REDIS_PORT
+                  key: SPRING_DATASOURCE_URL
+            - name: SPRING_DATASOURCE_USERNAME
               valueFrom:
                 configMapKeyRef:
                   name: chronoflow-config
-                  key: SPRING_DATA_REDIS_PORT
-            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+                  key: SPRING_DATASOURCE_USERNAME
+            - name: SPRING_DATASOURCE_PASSWORD
               valueFrom:
-                configMapKeyRef:
-                  name: chronoflow-config
-                  key: SPRING_KAFKA_BOOTSTRAP_SERVERS
+                secretKeyRef:
+                  name: chronoflow-secrets
+                  key: SPRING_DATASOURCE_PASSWORD
             - name: MANAGEMENT_OTLP_TRACING_ENDPOINT
               valueFrom:
                 configMapKeyRef:
@@ -70,28 +68,28 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: chrono-api-gateway
+  name: chrono-auth-service
   namespace: chronoflow
 spec:
   selector:
-    app: chrono-api-gateway
+    app: chrono-auth-service
   ports:
     - protocol: TCP
-      port: 8080
-      targetPort: 8080
+      port: 8084
+      targetPort: 8084
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: chrono-api-gateway
+  name: chrono-auth-service
   namespace: chronoflow
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: chrono-api-gateway
-  minReplicas: 2
-  maxReplicas: 8
+    name: chrono-auth-service
+  minReplicas: 1
+  maxReplicas: 4
   metrics:
     - type: Resource
       resource:
@@ -105,21 +103,3 @@ spec:
         target:
           type: Utilization
           averageUtilization: 80
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: chrono-api-gateway
-  namespace: chronoflow
-spec:
-  rules:
-    - host: chronoflow.local
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: chrono-api-gateway
-                port:
-                  number: 8080

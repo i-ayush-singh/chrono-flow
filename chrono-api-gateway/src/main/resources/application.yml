@@ -44,7 +44,7 @@ management:
 app:
   security:
     api-key-header: X-API-Key
-    auth-service-base-url: http://localhost:8081
+    auth-service-base-url: http://localhost:8084
     internal-auth-path: /internal/v1/api-keys/validate
   rate-limit:
     max-requests: 120

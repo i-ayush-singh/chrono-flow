@@ -6,6 +6,7 @@ resources:
   - configmap.yaml
   - secret.yaml
   - job-service.yaml
+  - auth-service.yaml
   - scheduler-service.yaml
   - executor-service.yaml
   - api-gateway.yaml

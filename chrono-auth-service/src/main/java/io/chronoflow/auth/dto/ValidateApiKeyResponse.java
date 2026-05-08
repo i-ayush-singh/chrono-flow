@@ -1,4 +1,4 @@
-package io.chronoflow.job.dto;
+package io.chronoflow.auth.dto;
 
 public record ValidateApiKeyResponse(
         boolean valid,

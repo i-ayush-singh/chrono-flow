@@ -16,6 +16,7 @@ ChronoFlow is a distributed job scheduler platform (Cron-as-a-Service) designed 
 - `chrono-bom`: centralized dependency versions
 - `chrono-common`: shared DTOs and base contracts
 - `chrono-job-service`: first Spring Boot service (health + base runtime)
+- `chrono-auth-service`: dedicated API key validation and key lifecycle management service
 - `chrono-scheduler-service`: consumes job-created events, stores schedule index in Redis, publishes due execution events
 - `chrono-executor-service`: consumes execute events, performs webhook calls, pushes retry/DLQ events
 - `chrono-api-gateway`: central entrypoint with API key auth, Redis rate limiting, and service routing
@@ -59,6 +60,18 @@ Health check:
 
 ```bash
 curl http://localhost:8082/api/v1/health
+```
+
+## Run Auth Service
+
+```bash
+mvn -pl chrono-auth-service spring-boot:run
+```
+
+Health check:
+
+```bash
+curl http://localhost:8084/actuator/health
 ```
 
 ## Run Executor Service
@@ -107,7 +120,7 @@ This script creates a tenant, creates an API key, creates a job through the gate
 
 Base manifests are available under `k8s/base` for:
 - namespace, configmap, secret
-- job-service, scheduler-service, executor-service, api-gateway
+- job-service, auth-service, scheduler-service, executor-service, api-gateway
 - ingress for `chronoflow.local`
 - health probes, resource requests/limits, and HPAs
 

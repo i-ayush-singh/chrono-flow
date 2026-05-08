@@ -37,6 +37,24 @@ services:
         cpu: 1000m
         memory: 1024Mi
 
+  auth:
+    enabled: true
+    name: chrono-auth-service
+    image: i-ayush-singh/chrono-auth-service:latest
+    port: 8084
+    replicas: 1
+    minReplicas: 1
+    maxReplicas: 4
+    cpuTargetUtilization: 70
+    memoryTargetUtilization: 80
+    resources:
+      requests:
+        cpu: 150m
+        memory: 256Mi
+      limits:
+        cpu: 600m
+        memory: 768Mi
+
   scheduler:
     enabled: true
     name: chrono-scheduler-service

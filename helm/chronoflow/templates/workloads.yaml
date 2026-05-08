@@ -60,7 +60,7 @@ spec:
                   key: MANAGEMENT_OTLP_TRACING_ENDPOINT
             {{- if eq $svcKey "gateway" }}
             - name: APP_SECURITY_AUTH_SERVICE_BASE_URL
-              value: "http://{{ $root.Values.services.job.name }}:{{ $root.Values.services.job.port }}"
+              value: "http://{{ $root.Values.services.auth.name }}:{{ $root.Values.services.auth.port }}"
             - name: SPRING_DATA_REDIS_HOST
               valueFrom:
                 configMapKeyRef:
@@ -84,7 +84,7 @@ spec:
                   name: {{ include "chronoflow.fullname" $root }}-config
                   key: SPRING_DATA_REDIS_PORT
             {{- end }}
-            {{- if eq $svcKey "job" }}
+            {{- if or (eq $svcKey "job") (eq $svcKey "auth") }}
             - name: SPRING_DATASOURCE_URL
               valueFrom:
                 configMapKeyRef:
