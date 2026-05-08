@@ -215,6 +215,12 @@ Benchmark results template:
 - Incident/ops runbook: `docs/operations/runbook.md`
 - Incident review template: `docs/operations/incident-template.md`
 
+## Resume Pack
+
+- Architecture one-pager: `docs/resume-pack/architecture-one-pager.md`
+- Resume bullet templates: `docs/resume-pack/resume-bullets.md`
+- Demo script (2 minutes): `docs/resume-pack/demo-script-2min.md`
+
 ## CI/CD
 
 GitHub Actions workflows are included:
