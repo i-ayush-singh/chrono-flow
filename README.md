@@ -31,6 +31,13 @@ Observability UIs:
 
 - Jaeger: `http://localhost:16686`
 - Grafana: `http://localhost:3000` (admin/admin)
+- Prometheus: `http://localhost:9090`
+
+Provisioned observability assets:
+
+- Grafana datasources: Prometheus + Jaeger (auto-configured)
+- Grafana dashboard: `ChronoFlow Overview`
+- Prometheus alert rules: gateway 5xx ratio and executor 5xx ratio
 
 ## Build
 
