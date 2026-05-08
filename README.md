@@ -227,6 +227,10 @@ Benchmark results template:
 - Changelog template: `docs/release/changelog-template.md`
 - Release runbook: `docs/release/release-runbook.md`
 
+## Final Readiness
+
+- Production-readiness closeout checklist: `docs/final-readiness-checklist.md`
+
 ## CI/CD
 
 GitHub Actions workflows are included:
