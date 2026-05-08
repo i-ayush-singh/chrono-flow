@@ -4,6 +4,11 @@ server:
 spring:
   application:
     name: chrono-api-gateway
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
   cloud:
     gateway:
       routes:
@@ -29,13 +34,21 @@ management:
     web:
       exposure:
         include: health,info,prometheus,gateway
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: http://localhost:4318/v1/traces
 
 app:
   security:
     api-key-header: X-API-Key
-    valid-api-keys:
-      - local-dev-key-1
-      - local-dev-key-2
+    auth-service-base-url: http://localhost:8081
+    internal-auth-path: /internal/v1/api-keys/validate
   rate-limit:
     max-requests: 120
     window-seconds: 60
+  kafka:
+    topics:
+      gateway-audit: chronoflow.gateway.audit.v1

@@ -1,6 +1,7 @@
 package io.chronoflow.gateway.filter;
 
 import io.chronoflow.gateway.config.GatewaySecurityProperties;
+import io.chronoflow.gateway.client.AuthServiceClient;
 import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -13,7 +14,11 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class ApiKeyAuthFilter implements GlobalFilter, Ordered {
 
+    public static final String ATTR_TENANT_ID = "chronoflow.tenantId";
+    public static final String ATTR_TENANT_LIMIT = "chronoflow.tenantLimit";
+
     private final GatewaySecurityProperties securityProperties;
+    private final AuthServiceClient authServiceClient;
 
     @Override
     public Mono<Void> filter(org.springframework.web.server.ServerWebExchange exchange,
@@ -24,16 +29,32 @@ public class ApiKeyAuthFilter implements GlobalFilter, Ordered {
         }
 
         String headerName = securityProperties.apiKeyHeader();
-        String presentedKey = exchange.getRequest().getHeaders().getFirst(headerName);
-        if (presentedKey == null || presentedKey.isBlank() || !securityProperties.validApiKeys().contains(presentedKey)) {
-            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            byte[] body = "{\"status\":\"UNAUTHORIZED\",\"message\":\"invalid api key\"}"
-                    .getBytes(StandardCharsets.UTF_8);
-            var dataBuffer = exchange.getResponse().bufferFactory().wrap(body);
-            exchange.getResponse().getHeaders().add("Content-Type", "application/json");
-            return exchange.getResponse().writeWith(Mono.just(dataBuffer));
+        String credential = exchange.getRequest().getHeaders().getFirst(headerName);
+        if (credential == null || credential.isBlank()) {
+            return unauthorized(exchange);
         }
-        return chain.filter(exchange);
+
+        return authServiceClient.validate(credential)
+                .flatMap(result -> {
+                    if (!result.valid()) {
+                        return unauthorized(exchange);
+                    }
+                    exchange.getAttributes().put(ATTR_TENANT_ID, result.tenantId());
+                    exchange.getAttributes().put(ATTR_TENANT_LIMIT, result.tenantRateLimitPerMinute());
+                    var mutatedRequest = exchange.getRequest().mutate()
+                            .header("X-Tenant-Id", result.tenantId())
+                            .build();
+                    return chain.filter(exchange.mutate().request(mutatedRequest).build());
+                });
+    }
+
+    private Mono<Void> unauthorized(org.springframework.web.server.ServerWebExchange exchange) {
+        exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+        byte[] body = "{\"status\":\"UNAUTHORIZED\",\"message\":\"invalid api key\"}"
+                .getBytes(StandardCharsets.UTF_8);
+        var dataBuffer = exchange.getResponse().bufferFactory().wrap(body);
+        exchange.getResponse().getHeaders().add("Content-Type", "application/json");
+        return exchange.getResponse().writeWith(Mono.just(dataBuffer));
     }
 
     @Override

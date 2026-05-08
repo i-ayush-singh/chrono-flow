@@ -3,7 +3,9 @@ package io.chronoflow.job.service;
 import io.chronoflow.job.dto.CreateApiKeyResponse;
 import io.chronoflow.job.dto.CreateTenantRequest;
 import io.chronoflow.job.dto.TenantResponse;
+import io.chronoflow.job.dto.ValidateApiKeyResponse;
 import io.chronoflow.job.entity.ApiKey;
+import io.chronoflow.job.entity.ApiKeyStatus;
 import io.chronoflow.job.entity.Tenant;
 import io.chronoflow.job.exception.BadRequestException;
 import io.chronoflow.job.exception.NotFoundException;
@@ -51,6 +53,28 @@ public class TenantService {
         apiKeyRepository.save(apiKey);
 
         return new CreateApiKeyResponse(keyId, keySecret);
+    }
+
+    @Transactional(readOnly = true)
+    public ValidateApiKeyResponse validateApiKey(String rawCredential) {
+        if (rawCredential == null || rawCredential.isBlank() || !rawCredential.contains(":")) {
+            return new ValidateApiKeyResponse(false, null, null);
+        }
+        String[] parts = rawCredential.split(":", 2);
+        String keyId = parts[0];
+        String keySecret = parts[1];
+        if (keyId.isBlank() || keySecret.isBlank()) {
+            return new ValidateApiKeyResponse(false, null, null);
+        }
+
+        return apiKeyRepository.findByKeyIdAndStatus(keyId, ApiKeyStatus.ACTIVE)
+                .filter(apiKey -> apiKey.getKeySecretHash().equals(sha256Hex(keySecret)))
+                .map(apiKey -> new ValidateApiKeyResponse(
+                        true,
+                        apiKey.getTenant().getId().toString(),
+                        apiKey.getTenant().getRateLimitPerMinute()
+                ))
+                .orElse(new ValidateApiKeyResponse(false, null, null));
     }
 
     private String sha256Hex(String plainText) {
