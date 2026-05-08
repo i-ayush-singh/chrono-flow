@@ -221,6 +221,12 @@ Benchmark results template:
 - Resume bullet templates: `docs/resume-pack/resume-bullets.md`
 - Demo script (2 minutes): `docs/resume-pack/demo-script-2min.md`
 
+## Release Governance
+
+- Versioning strategy: `docs/release/versioning-strategy.md`
+- Changelog template: `docs/release/changelog-template.md`
+- Release runbook: `docs/release/release-runbook.md`
+
 ## CI/CD
 
 GitHub Actions workflows are included:
