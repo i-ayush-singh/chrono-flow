@@ -120,3 +120,19 @@ kubectl apply -k k8s/base
 Notes:
 - Update container image names/tags before applying in your cluster.
 - These manifests assume external Kafka/Redis/Postgres services are reachable in-cluster as `kafka`, `redis`, and `postgres`.
+
+## Helm Chart
+
+A Helm chart is available at `helm/chronoflow`.
+
+Render manifests:
+
+```bash
+helm template chronoflow helm/chronoflow
+```
+
+Install in namespace:
+
+```bash
+helm upgrade --install chronoflow helm/chronoflow --namespace chronoflow --create-namespace
+```
