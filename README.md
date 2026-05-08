@@ -121,6 +121,22 @@ Notes:
 - Update container image names/tags before applying in your cluster.
 - These manifests assume external Kafka/Redis/Postgres services are reachable in-cluster as `kafka`, `redis`, and `postgres`.
 
+## Database Migrations
+
+`chrono-job-service` now uses Flyway migrations (instead of Hibernate schema auto-update).
+
+- Migration location: `chrono-job-service/src/main/resources/db/migration`
+- Baseline migration: `V1__init_chronoflow_schema.sql`
+- Hibernate mode: `ddl-auto: validate`
+
+Typical local run:
+
+```bash
+mvn -pl chrono-job-service spring-boot:run
+```
+
+Flyway runs automatically on startup and validates schema history.
+
 ## Helm Chart
 
 A Helm chart is available at `helm/chronoflow`.

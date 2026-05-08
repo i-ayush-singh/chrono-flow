@@ -10,11 +10,16 @@ spring:
     password: chronoflow
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true
     open-in-view: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    validate-on-migrate: true
   kafka:
     bootstrap-servers: localhost:9092
     producer:
