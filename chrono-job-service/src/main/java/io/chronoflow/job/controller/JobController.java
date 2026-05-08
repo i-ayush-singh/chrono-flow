@@ -30,7 +30,7 @@ public class JobController {
     }
 
     @GetMapping
-    public List<JobResponse> listJobs(@RequestParam UUID tenantId) {
+    public List<JobResponse> listJobs(@RequestParam("tenantId") UUID tenantId) {
         return jobService.listJobs(tenantId);
     }
 }

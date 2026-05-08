@@ -85,6 +85,16 @@ Health check:
 curl http://localhost:8080/actuator/health
 ```
 
+## End-to-End Smoke Script
+
+After all services are running locally, execute:
+
+```bash
+./scripts/e2e.sh
+```
+
+This script creates a tenant, creates an API key, creates a job through the gateway, and lists jobs through the gateway to generate traces for Jaeger.
+
 ## Next Phases
 
 - Auth service (tenant/API key/JWT)

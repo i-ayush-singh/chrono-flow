@@ -30,7 +30,7 @@ public class TenantController {
 
     @PostMapping("/{tenantId}/api-keys")
     @ResponseStatus(HttpStatus.CREATED)
-    public CreateApiKeyResponse createApiKey(@PathVariable UUID tenantId) {
+    public CreateApiKeyResponse createApiKey(@PathVariable("tenantId") UUID tenantId) {
         return tenantService.createApiKey(tenantId);
     }
 }
