@@ -136,3 +136,27 @@ Install in namespace:
 ```bash
 helm upgrade --install chronoflow helm/chronoflow --namespace chronoflow --create-namespace
 ```
+
+## CI/CD
+
+GitHub Actions workflows are included:
+
+- `.github/workflows/ci.yml`
+  - Runs on PRs and pushes to `main`
+  - Executes `mvn clean verify`
+  - Validates k8s manifests with `kubectl kustomize`
+
+- `.github/workflows/release-deploy.yml`
+  - On push to `main`: builds and pushes service images to GHCR with Jib
+  - On manual dispatch: deploys Helm chart to Kubernetes
+
+Required repo configuration:
+
+- GitHub Packages permissions enabled for workflow token (`packages: write`)
+- Repository secret: `KUBE_CONFIG_DATA` (base64 encoded kubeconfig) for deploy job
+
+Recommended branch protection for `main`:
+
+- Require pull request reviews
+- Require status checks to pass (`CI / Build and Test`)
+- Restrict direct pushes
