@@ -115,6 +115,89 @@ After all services are running locally, execute:
 
 This script creates a tenant, creates an API key, creates a job through the gateway, and lists jobs through the gateway to generate traces for Jaeger.
 
+## How to Evaluate This Project
+
+Use this quick checklist to evaluate ChronoFlow in 10-15 minutes.
+
+### 1) Start infrastructure
+
+```bash
+docker compose -f infra/docker/docker-compose.yml up -d
+docker compose -f infra/docker/docker-compose.yml ps
+```
+
+Expected evidence:
+- Postgres, Redis, Kafka, OTel collector, Jaeger, Grafana, Prometheus are up.
+
+### 2) Start services (separate terminals)
+
+```bash
+mvn -pl chrono-job-service spring-boot:run
+mvn -pl chrono-auth-service spring-boot:run
+mvn -pl chrono-scheduler-service spring-boot:run
+mvn -pl chrono-executor-service spring-boot:run
+mvn -pl chrono-api-gateway spring-boot:run
+```
+
+Expected evidence:
+- Health endpoints return 200 for ports 8080-8084.
+
+### 3) Run end-to-end flow
+
+```bash
+./scripts/e2e.sh
+```
+
+Expected evidence:
+- Tenant created
+- API key created
+- Job created via gateway
+- Job list returned successfully
+
+### 4) Verify observability
+
+- Open Jaeger: `http://localhost:16686`
+  - Search for `chrono-api-gateway` traces
+- Open Grafana: `http://localhost:3000`
+  - Dashboard: `ChronoFlow Overview`
+- Open Prometheus: `http://localhost:9090`
+  - Confirm scrape targets for app services
+
+Expected evidence:
+- Trace spans across gateway and downstream service
+- Throughput/5xx panels populated
+
+### 5) Validate reliability behavior
+
+```bash
+NAMESPACE=chronoflow ./chaos/executor-kill-recovery.sh
+```
+
+Expected evidence:
+- Executor pod restarts
+- Service recovers
+- Retry/DLQ path remains operational
+
+### 6) Validate deployment assets
+
+```bash
+kubectl kustomize k8s/base >/dev/null && echo "kustomize-ok"
+helm template chronoflow helm/chronoflow >/dev/null && echo "helm-ok"
+```
+
+Expected evidence:
+- Kubernetes baseline renders
+- Helm chart renders cleanly
+
+### Reviewer Evidence Checklist
+
+- [ ] E2E script succeeds
+- [ ] Gateway auth/rate-limit path exercised
+- [ ] Jaeger trace visible
+- [ ] Grafana metrics dashboard visible
+- [ ] Chaos recovery script works
+- [ ] k8s and Helm manifests render
+
 ## Next Phases
 
 - Auth service (tenant/API key/JWT)
