@@ -209,6 +209,12 @@ Benchmark results template:
 
 - `docs/benchmarks/results-template.md`
 
+## Operations Docs
+
+- SLO definitions: `docs/operations/slo.md`
+- Incident/ops runbook: `docs/operations/runbook.md`
+- Incident review template: `docs/operations/incident-template.md`
+
 ## CI/CD
 
 GitHub Actions workflows are included:
