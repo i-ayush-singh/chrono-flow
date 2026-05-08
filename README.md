@@ -102,3 +102,21 @@ This script creates a tenant, creates an API key, creates a job through the gate
 - Executor service (Kafka consumer + webhook delivery + retry/DLQ)
 - API Gateway
 - Observability + Kubernetes deployment
+
+## Kubernetes Baseline
+
+Base manifests are available under `k8s/base` for:
+- namespace, configmap, secret
+- job-service, scheduler-service, executor-service, api-gateway
+- ingress for `chronoflow.local`
+- health probes, resource requests/limits, and HPAs
+
+Apply with:
+
+```bash
+kubectl apply -k k8s/base
+```
+
+Notes:
+- Update container image names/tags before applying in your cluster.
+- These manifests assume external Kafka/Redis/Postgres services are reachable in-cluster as `kafka`, `redis`, and `postgres`.
