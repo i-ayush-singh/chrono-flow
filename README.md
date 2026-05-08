@@ -184,6 +184,31 @@ Security defaults in Helm:
 - dropped Linux capabilities (`ALL`)
 - namespace ingress hardening via NetworkPolicy templates
 
+## Performance and Chaos Testing
+
+Load scripts:
+
+- `perf/k6/smoke-flow.js` (full API smoke flow under load)
+- `perf/k6/gateway-soak.js` (sustained gateway read traffic)
+
+Examples:
+
+```bash
+k6 run perf/k6/smoke-flow.js
+```
+
+```bash
+TENANT_ID=<tenant-id> API_KEY=<keyId:keySecret> k6 run perf/k6/gateway-soak.js
+```
+
+Chaos script:
+
+- `chaos/executor-kill-recovery.sh` (kills executor pod and validates recovery path)
+
+Benchmark results template:
+
+- `docs/benchmarks/results-template.md`
+
 ## CI/CD
 
 GitHub Actions workflows are included:
