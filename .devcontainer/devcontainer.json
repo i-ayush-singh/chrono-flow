@@ -1,6 +1,6 @@
 {
   "name": "ChronoFlow Codespace",
-  "image": "mcr.microsoft.com/devcontainers/java:1-17-bullseye",
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
   "hostRequirements": {
     "cpus": 4,
     "memory": "8gb"
