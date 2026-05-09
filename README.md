@@ -150,6 +150,19 @@ Health check:
 curl http://localhost:8080/actuator/health
 ```
 
+Demo UI (via gateway):
+
+```bash
+open http://localhost:8080/demo/index.html
+```
+
+This UI can:
+- create tenant
+- create API key
+- create job via gateway auth path
+- list jobs via gateway
+- jump to Jaeger/Grafana/Prometheus links
+
 ## End-to-End Smoke Script
 
 After all services are running locally, execute:

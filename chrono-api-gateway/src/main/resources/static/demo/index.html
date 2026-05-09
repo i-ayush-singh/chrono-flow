@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ChronoFlow Demo Console</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; background: #0f172a; color: #e2e8f0; }
+    h1 { margin: 0 0 8px; }
+    .hint { color: #94a3b8; margin-bottom: 20px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+    .card { background: #111827; border: 1px solid #334155; border-radius: 10px; padding: 16px; }
+    .card h2 { margin-top: 0; font-size: 18px; }
+    label { display: block; font-size: 13px; color: #94a3b8; margin-top: 8px; }
+    input { width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid #475569; background: #0b1220; color: #e2e8f0; }
+    button { margin-top: 12px; padding: 9px 12px; border: none; border-radius: 6px; cursor: pointer; background: #2563eb; color: white; }
+    button.secondary { background: #334155; }
+    pre { white-space: pre-wrap; background: #020617; border: 1px solid #334155; padding: 10px; border-radius: 6px; min-height: 120px; }
+    .links a { color: #93c5fd; display: block; margin-top: 6px; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <h1>ChronoFlow Demo Console</h1>
+  <p class="hint">Use this page to run the end-to-end flow live during interviews.</p>
+
+  <div class="grid">
+    <section class="card">
+      <h2>1) Create Tenant</h2>
+      <label for="tenantName">Tenant Name</label>
+      <input id="tenantName" value="demo-tenant-ui" />
+      <button id="createTenantBtn">Create Tenant</button>
+    </section>
+
+    <section class="card">
+      <h2>2) Create API Key</h2>
+      <label for="tenantId">Tenant ID</label>
+      <input id="tenantId" placeholder="auto-filled after tenant creation" />
+      <button id="createApiKeyBtn">Create API Key</button>
+    </section>
+
+    <section class="card">
+      <h2>3) Create Job (Via Gateway)</h2>
+      <label for="jobName">Job Name</label>
+      <input id="jobName" value="demo-job-ui" />
+      <label for="cronExpression">Cron Expression</label>
+      <input id="cronExpression" value="*/2 * * * *" />
+      <label for="targetUrl">Target URL</label>
+      <input id="targetUrl" value="https://httpbin.org/post" />
+      <button id="createJobBtn">Create Job</button>
+    </section>
+
+    <section class="card">
+      <h2>4) List Jobs (Via Gateway)</h2>
+      <button id="listJobsBtn">List Jobs</button>
+      <button id="healthBtn" class="secondary">Gateway Health</button>
+    </section>
+
+    <section class="card">
+      <h2>Observability Links</h2>
+      <div class="links">
+        <a id="jaegerLink" target="_blank" rel="noopener">Jaeger (16686)</a>
+        <a id="grafanaLink" target="_blank" rel="noopener">Grafana (3000)</a>
+        <a id="prometheusLink" target="_blank" rel="noopener">Prometheus (9090)</a>
+      </div>
+    </section>
+  </div>
+
+  <section class="card" style="margin-top:16px;">
+    <h2>Output</h2>
+    <pre id="output"></pre>
+  </section>
+
+  <script>
+    const output = document.getElementById("output");
+    const tenantIdInput = document.getElementById("tenantId");
+    let apiCredential = "";
+
+    function log(title, data) {
+      output.textContent = `${title}\n${JSON.stringify(data, null, 2)}\n\n` + output.textContent;
+    }
+
+    function withPort(baseUrl, port) {
+      return baseUrl.replace(/-(\d+)\.app\.github\.dev$/, `-${port}.app.github.dev`);
+    }
+
+    function wireObservabilityLinks() {
+      const host = window.location.host;
+      const origin = `${window.location.protocol}//${host}`;
+      document.getElementById("jaegerLink").href = withPort(origin, 16686);
+      document.getElementById("grafanaLink").href = withPort(origin, 3000);
+      document.getElementById("prometheusLink").href = withPort(origin, 9090);
+    }
+
+    async function callApi(path, opts = {}) {
+      const res = await fetch(path, opts);
+      const text = await res.text();
+      let parsed;
+      try { parsed = JSON.parse(text); } catch { parsed = { raw: text }; }
+      if (!res.ok) {
+        throw new Error(`${res.status} ${res.statusText}: ${JSON.stringify(parsed)}`);
+      }
+      return parsed;
+    }
+
+    document.getElementById("createTenantBtn").addEventListener("click", async () => {
+      const tenantName = document.getElementById("tenantName").value.trim();
+      const result = await callApi("/api/v1/tenants", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: tenantName })
+      });
+      tenantIdInput.value = result.id;
+      log("Tenant created", result);
+    });
+
+    document.getElementById("createApiKeyBtn").addEventListener("click", async () => {
+      const tenantId = tenantIdInput.value.trim();
+      const result = await callApi(`/api/v1/tenants/${tenantId}/api-keys`, { method: "POST" });
+      apiCredential = `${result.keyId}:${result.keySecret}`;
+      log("API key created", { ...result, apiCredential });
+    });
+
+    document.getElementById("createJobBtn").addEventListener("click", async () => {
+      const tenantId = tenantIdInput.value.trim();
+      const payload = {
+        tenantId,
+        name: document.getElementById("jobName").value.trim(),
+        cronExpression: document.getElementById("cronExpression").value.trim(),
+        targetUrl: document.getElementById("targetUrl").value.trim()
+      };
+      const result = await callApi("/api/v1/jobs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-API-Key": apiCredential },
+        body: JSON.stringify(payload)
+      });
+      log("Job created", result);
+    });
+
+    document.getElementById("listJobsBtn").addEventListener("click", async () => {
+      const tenantId = tenantIdInput.value.trim();
+      const result = await callApi(`/api/v1/jobs?tenantId=${encodeURIComponent(tenantId)}`, {
+        headers: { "X-API-Key": apiCredential }
+      });
+      log("Jobs listed", result);
+    });
+
+    document.getElementById("healthBtn").addEventListener("click", async () => {
+      const result = await callApi("/actuator/health");
+      log("Gateway health", result);
+    });
+
+    wireObservabilityLinks();
+    log("Ready", { note: "Start with Create Tenant." });
+  </script>
+</body>
+</html>
