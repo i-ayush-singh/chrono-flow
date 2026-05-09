@@ -110,12 +110,10 @@ def main() -> int:
     run(["mvn", "-DskipTests", "install", "-pl", "chrono-common,chrono-bom", "-am"])
 
     print("[5/6] Starting Spring services...")
-    # Flyway flags avoid bootstrap failures on reused DB volumes in demos.
-    flyway_safe_args = "--spring.flyway.out-of-order=true --spring.flyway.ignore-migration-patterns=*:missing"
-    start_service("chrono-job-service", "job-service.log", flyway_safe_args)
-    start_service("chrono-auth-service", "auth-service.log", flyway_safe_args)
+    start_service("chrono-job-service", "job-service.log")
+    start_service("chrono-auth-service", "auth-service.log")
     start_service("chrono-scheduler-service", "scheduler-service.log")
-    start_service("chrono-executor-service", "executor-service.log", flyway_safe_args)
+    start_service("chrono-executor-service", "executor-service.log")
     start_service("chrono-api-gateway", "api-gateway.log")
 
     print("[6/6] Waiting for service health endpoints...")
