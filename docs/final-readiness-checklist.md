@@ -5,7 +5,7 @@ Use this as the closeout gate before publishing the project as portfolio/resume-
 ## 1) Core Platform Capability
 - [x] Multi-service architecture (gateway, auth, job, scheduler, executor)
 - [x] Redis + Kafka + PostgreSQL integrated
-- [x] End-to-end flow script (`scripts/e2e.sh`)
+- [x] End-to-end flow script (`scripts/e2e.py`)
 - [x] Dedicated auth service for API key validation
 
 ## 2) Reliability

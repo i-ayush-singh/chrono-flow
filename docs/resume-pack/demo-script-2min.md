@@ -15,7 +15,7 @@ Show end-to-end reliability + observability in under 2 minutes.
 
 ### 0:20 - 0:50 (E2E flow)
 - Run:
-  - `./scripts/e2e.sh`
+  - `python3 scripts/e2e.py`
 - Highlight output:
   - tenant created
   - API key created
@@ -29,7 +29,7 @@ Show end-to-end reliability + observability in under 2 minutes.
 
 ### 1:20 - 1:45 (Reliability/chaos)
 - Run:
-  - `NAMESPACE=chronoflow ./chaos/executor-kill-recovery.sh`
+  - `NAMESPACE=chronoflow python3 chaos/executor_kill_recovery.py`
 - Explain that retries are persisted in DB and recover after pod restart.
 
 ### 1:45 - 2:00 (Production readiness close)

@@ -27,6 +27,51 @@ ChronoFlow is a distributed job scheduler platform (Cron-as-a-Service) designed 
 docker compose -f infra/docker/docker-compose.yml up -d
 ```
 
+## On-demand Web Demo with GitHub Codespaces
+
+Use this when you want a public link only during interviews and shut it down afterwards.
+
+### 1) Start a Codespace
+
+- Open the repository on GitHub.
+- Click `Code` -> `Codespaces` -> `Create codespace on main`.
+- Wait for container setup to finish.
+
+### 2) Boot full stack inside Codespace
+
+```bash
+python3 scripts/codespaces_start.py
+```
+
+Then verify:
+
+```bash
+curl -s http://localhost:8080/actuator/health
+python3 scripts/e2e.py
+```
+
+### 3) Create a public resume link
+
+- In Codespaces, open the `Ports` tab.
+- For port `8080`, set visibility to `Public`.
+- Copy the forwarded URL (example: `https://<name>-8080.app.github.dev`).
+- Use this as your demo/deployment link (for example `.../actuator/health`).
+
+### 4) Optional public observability links
+
+- Port `16686` (Jaeger)
+- Port `3000` (Grafana)
+
+You can temporarily set these to `Public` during demos, then set back to `Private`.
+
+### 5) Shut down after interview
+
+```bash
+python3 scripts/codespaces_stop.py
+```
+
+Then stop or delete the Codespace in GitHub UI to avoid usage charges beyond free quota.
+
 Observability UIs:
 
 - Jaeger: `http://localhost:16686`
@@ -110,7 +155,7 @@ curl http://localhost:8080/actuator/health
 After all services are running locally, execute:
 
 ```bash
-./scripts/e2e.sh
+python3 scripts/e2e.py
 ```
 
 This script creates a tenant, creates an API key, creates a job through the gateway, and lists jobs through the gateway to generate traces for Jaeger.
@@ -145,7 +190,7 @@ Expected evidence:
 ### 3) Run end-to-end flow
 
 ```bash
-./scripts/e2e.sh
+python3 scripts/e2e.py
 ```
 
 Expected evidence:
@@ -170,7 +215,7 @@ Expected evidence:
 ### 5) Validate reliability behavior
 
 ```bash
-NAMESPACE=chronoflow ./chaos/executor-kill-recovery.sh
+NAMESPACE=chronoflow python3 chaos/executor_kill_recovery.py
 ```
 
 Expected evidence:
@@ -286,7 +331,7 @@ TENANT_ID=<tenant-id> API_KEY=<keyId:keySecret> k6 run perf/k6/gateway-soak.js
 
 Chaos script:
 
-- `chaos/executor-kill-recovery.sh` (kills executor pod and validates recovery path)
+- `chaos/executor_kill_recovery.py` (kills executor pod and validates recovery path)
 
 Benchmark results template:
 

@@ -22,7 +22,7 @@
 - p50 / p95 / p99 latency:
 - Bottleneck observed:
 
-## Chaos Test: Executor Kill Recovery (`chaos/executor-kill-recovery.sh`)
+## Chaos Test: Executor Kill Recovery (`chaos/executor_kill_recovery.py`)
 - Command:
 - Pod killed at timestamp:
 - Recovery time to Ready:
